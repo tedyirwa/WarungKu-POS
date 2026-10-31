@@ -22,7 +22,8 @@ import java.util.Locale
 
 @Composable
 fun DashboardScreen(
-    onNavigateToProducts: () -> Unit
+    onNavigateToProducts: () -> Unit,
+    onNavigateToCashier: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -101,6 +102,13 @@ fun DashboardScreen(
         }
 
         OutlinedButton(
+            onClick = onNavigateToCashier,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Buka Kasir")
+        }
+
+        OutlinedButton(
             onClick = onNavigateToProducts,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -141,7 +149,8 @@ fun SummaryCard(
 fun DashboardScreenPreview() {
     WarungKuPOSTheme {
         DashboardScreen(
-            onNavigateToProducts = {}
+            onNavigateToProducts = {},
+            onNavigateToCashier = {}
         )
     }
 }

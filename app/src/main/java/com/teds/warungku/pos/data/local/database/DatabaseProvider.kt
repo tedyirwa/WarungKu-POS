@@ -16,7 +16,7 @@ object DatabaseProvider {
                 "warungku_database",
 
                 )
-                .addMigrations(ProductDatabase.MIGRATION_1_2)
+                .addMigrations(ProductDatabase.MIGRATION_1_2, ProductDatabase.MIGRATION_2_3)
                 .build().also { INSTANCE = it }
         }
     }

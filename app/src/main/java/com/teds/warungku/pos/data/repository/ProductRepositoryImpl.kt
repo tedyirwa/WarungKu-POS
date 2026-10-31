@@ -26,6 +26,21 @@ class ProductRepositoryImpl(
         }
     }
 
+    override fun getActiveProducts(): Flow<List<Product>> {
+        return productDao.getActiveProducts().map { entities ->
+            entities.map { entity ->
+                Product(
+                    id = entity.id,
+                    name = entity.name,
+                    price = entity.price,
+                    stock = entity.stock,
+                    unit = entity.unit,
+                    isActive = entity.isActive
+                )
+            }
+        }
+    }
+
     override suspend fun addProduct(product: Product) {
         val entity = ProductEntity(
             id = product.id,

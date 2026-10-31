@@ -8,11 +8,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.teds.warungku.pos.data.local.database.DatabaseProvider
 import com.teds.warungku.pos.data.repository.ProductRepositoryImpl
+import com.teds.warungku.pos.data.repository.TransactionRepositoryImpl
 import com.teds.warungku.pos.domain.usecase.ActivateProductUseCase
 import com.teds.warungku.pos.domain.usecase.AddProductUseCase
+import com.teds.warungku.pos.domain.usecase.CheckoutUseCase
 import com.teds.warungku.pos.domain.usecase.DeactivateProductUseCase
+import com.teds.warungku.pos.domain.usecase.GetActiveProductsUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllProductsUseCase
 import com.teds.warungku.pos.domain.usecase.UpdateProductUseCase
+import com.teds.warungku.pos.presentation.cashier.screen.CashierScreen
+import com.teds.warungku.pos.presentation.cashier.viewmodel.CashierViewModel
+import com.teds.warungku.pos.presentation.cashier.viewmodel.CashierViewModelFactory
 import com.teds.warungku.pos.presentation.dashboard.screen.DashboardScreen
 import com.teds.warungku.pos.presentation.product.screen.ProductScreen
 import com.teds.warungku.pos.presentation.product.viewmodel.ProductViewModel
@@ -23,7 +29,9 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     val context = LocalContext.current
-    val productDao = DatabaseProvider.getDatabase(context).productDao()
+    val database = DatabaseProvider.getDatabase(context)
+    val productDao = database.productDao()
+
     val repository = ProductRepositoryImpl(productDao)
 
     val getAllProductsUseCase = GetAllProductsUseCase(repository)
@@ -42,6 +50,21 @@ fun AppNavigation() {
         )
     )
 
+    val transactionRepository = TransactionRepositoryImpl(database)
+
+    val getActiveProductsUseCase =
+        GetActiveProductsUseCase(repository)
+
+    val checkoutUseCase =
+        CheckoutUseCase(transactionRepository)
+
+    val cashierViewModel: CashierViewModel = viewModel(
+        factory = CashierViewModelFactory(
+            getActiveProductsUseCase,
+            checkoutUseCase
+        )
+    )
+
     NavHost(
         navController = navController,
         startDestination = "dashboard"
@@ -50,6 +73,9 @@ fun AppNavigation() {
             DashboardScreen(
                 onNavigateToProducts = {
                     navController.navigate("products")
+                },
+                onNavigateToCashier = {
+                    navController.navigate("cashier")
                 }
             )
         }
@@ -60,6 +86,15 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 viewModel = productViewModel
+            )
+        }
+
+        composable("cashier") {
+            CashierScreen(
+                viewModel = cashierViewModel,
+                onBack = {
+                    navController.popBackStack()
+                }
             )
         }
     }
