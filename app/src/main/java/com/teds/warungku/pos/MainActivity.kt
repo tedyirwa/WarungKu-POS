@@ -16,7 +16,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            WarungKuPOSTheme {
+            WarungKuPOSTheme(
+                dynamicColor = false
+            ) {
                 AppNavigation()
             }
         }

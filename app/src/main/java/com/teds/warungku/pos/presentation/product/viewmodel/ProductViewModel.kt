@@ -3,13 +3,16 @@ package com.teds.warungku.pos.presentation.product.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teds.warungku.pos.domain.model.Product
+import com.teds.warungku.pos.domain.usecase.AddProductUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllProductsUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class ProductViewModel(
-    getAllProductsUseCase: GetAllProductsUseCase
+    getAllProductsUseCase: GetAllProductsUseCase,
+    private val addProductUseCase: AddProductUseCase
 ) : ViewModel() {
 
     val products: StateFlow<List<Product>> =
@@ -18,4 +21,10 @@ class ProductViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
         )
+
+    fun addProduct(product: Product) {
+        viewModelScope.launch {
+            addProductUseCase(product)
+        }
+    }
 }
