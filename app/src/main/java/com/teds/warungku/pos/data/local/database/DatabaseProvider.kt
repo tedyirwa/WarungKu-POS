@@ -1,4 +1,3 @@
-
 package com.teds.warungku.pos.data.local.database
 
 import android.content.Context
@@ -14,8 +13,11 @@ object DatabaseProvider {
             INSTANCE ?: Room.databaseBuilder(
                 context.applicationContext,
                 ProductDatabase::class.java,
-                "warungku_database"
-            ).build().also { INSTANCE = it }
+                "warungku_database",
+
+                )
+                .addMigrations(ProductDatabase.MIGRATION_1_2)
+                .build().also { INSTANCE = it }
         }
     }
 }

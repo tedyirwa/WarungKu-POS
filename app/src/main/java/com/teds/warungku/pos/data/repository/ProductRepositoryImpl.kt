@@ -19,7 +19,8 @@ class ProductRepositoryImpl(
                     name = entity.name,
                     price = entity.price,
                     stock = entity.stock,
-                    unit = entity.unit
+                    unit = entity.unit,
+                    isActive = entity.isActive
                 )
             }
         }
@@ -31,7 +32,8 @@ class ProductRepositoryImpl(
             name = product.name,
             price = product.price,
             stock = product.stock,
-            unit = product.unit
+            unit = product.unit,
+            isActive = product.isActive
         )
 
         productDao.insertProduct(entity)
@@ -43,22 +45,19 @@ class ProductRepositoryImpl(
             name = product.name,
             price = product.price,
             stock = product.stock,
-            unit = product.unit
+            unit = product.unit,
+            isActive = product.isActive
         )
 
         productDao.updateProduct(entity)
     }
 
-    override suspend fun deleteProduct(product: Product) {
-        val entity = ProductEntity(
-            id = product.id,
-            name = product.name,
-            price = product.price,
-            stock = product.stock,
-            unit = product.unit
-        )
+    override suspend fun deactivateProduct(productId: Long) {
+        productDao.deactivateProduct(productId)
+    }
 
-        productDao.removeProduct(entity)
+    override suspend fun activateProduct(productId: Long) {
+        productDao.activateProduct(productId)
     }
 
 }

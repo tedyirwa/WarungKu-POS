@@ -10,5 +10,6 @@ data class ProductEntity(
     val name: String,
     val price: Long,
     val stock: Int,
-    val unit: String
+    val unit: String,
+    val isActive: Boolean = true
 )

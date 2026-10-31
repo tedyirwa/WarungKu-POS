@@ -8,8 +8,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.teds.warungku.pos.data.local.database.DatabaseProvider
 import com.teds.warungku.pos.data.repository.ProductRepositoryImpl
+import com.teds.warungku.pos.domain.usecase.ActivateProductUseCase
 import com.teds.warungku.pos.domain.usecase.AddProductUseCase
+import com.teds.warungku.pos.domain.usecase.DeactivateProductUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllProductsUseCase
+import com.teds.warungku.pos.domain.usecase.UpdateProductUseCase
 import com.teds.warungku.pos.presentation.dashboard.screen.DashboardScreen
 import com.teds.warungku.pos.presentation.product.screen.ProductScreen
 import com.teds.warungku.pos.presentation.product.viewmodel.ProductViewModel
@@ -22,13 +25,20 @@ fun AppNavigation() {
     val context = LocalContext.current
     val productDao = DatabaseProvider.getDatabase(context).productDao()
     val repository = ProductRepositoryImpl(productDao)
+
     val getAllProductsUseCase = GetAllProductsUseCase(repository)
     val addProductUseCase = AddProductUseCase(repository)
+    val updateProductUseCase = UpdateProductUseCase(repository)
+    val deactivateProductUseCase = DeactivateProductUseCase(repository)
+    val activateProductUseCase = ActivateProductUseCase(repository)
 
     val productViewModel: ProductViewModel = viewModel(
         factory = ProductViewModelFactory(
             getAllProductsUseCase,
-            addProductUseCase
+            addProductUseCase,
+            updateProductUseCase,
+            deactivateProductUseCase,
+            activateProductUseCase
         )
     )
 

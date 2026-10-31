@@ -11,6 +11,8 @@ interface ProductRepository {
 
     suspend fun updateProduct(product: Product)
 
-    suspend fun deleteProduct(product: Product)
+    suspend fun deactivateProduct(productId: Long)
+
+    suspend fun activateProduct(productId: Long)
 
 }

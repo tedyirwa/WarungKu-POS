@@ -39,6 +39,15 @@ fun ProductScreen(
                     unit = unit
                 )
             )
+        },
+        onUpdateProduct = { product ->
+            viewModel.updateProduct(product)
+        },
+        onDeactivateProduct = { productId ->
+            viewModel.deactivateProduct(productId)
+        },
+        onActivateProduct = { productId ->
+            viewModel.activateProduct(productId)
         }
     )
 }
@@ -47,9 +56,13 @@ fun ProductScreen(
 private fun ProductContent(
     products: List<Product>,
     onBack: () -> Unit,
-    onAddProduct: (String, Long, Int, String) -> Unit
+    onAddProduct: (String, Long, Int, String) -> Unit,
+    onUpdateProduct: (Product) -> Unit,
+    onDeactivateProduct: (Long) -> Unit,
+    onActivateProduct: (Long) -> Unit
 ) {
-    var showAddForm by remember { mutableStateOf(false) }
+    var showForm by remember { mutableStateOf(false) }
+    var editingProduct by remember { mutableStateOf<Product?>(null) }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -61,18 +74,40 @@ private fun ProductContent(
             Text("Kembali")
         }
 
-        Button(onClick = { showAddForm = true }) {
+        Button(
+            onClick = {
+                editingProduct = null
+                showForm = true
+            }
+        ) {
             Text("Tambah Produk")
         }
 
-        if (showAddForm) {
+        if (showForm) {
             AddProductForm(
+                product = editingProduct,
                 onSave = { name, price, stock, unit ->
-                    onAddProduct(name, price, stock, unit)
-                    showAddForm = false
+                    val selectedProduct = editingProduct
+
+                    if (selectedProduct == null) {
+                        onAddProduct(name, price, stock, unit)
+                    } else {
+                        onUpdateProduct(
+                            selectedProduct.copy(
+                                name = name,
+                                price = price,
+                                stock = stock,
+                                unit = unit
+                            )
+                        )
+                    }
+
+                    showForm = false
+                    editingProduct = null
                 },
                 onCancel = {
-                    showAddForm = false
+                    showForm = false
+                    editingProduct = null
                 }
             )
         }
@@ -89,6 +124,31 @@ private fun ProductContent(
                         Text(product.name)
                         Text("Harga: Rp${product.price}")
                         Text("Stok: ${product.stock} ${product.unit}")
+                        Text(
+                            if (product.isActive) "Status: Aktif"
+                            else "Status: Nonaktif"
+                        )
+                        Button(
+                            onClick = {
+                                editingProduct = product
+                                showForm = true
+                            }
+                        ) {
+                            Text("Edit")
+                        }
+                        if (product.isActive) {
+                            Button(
+                                onClick = { onDeactivateProduct(product.id) }
+                            ) {
+                                Text("Nonaktifkan")
+                            }
+                        } else {
+                            Button(
+                                onClick = { onActivateProduct(product.id) }
+                            ) {
+                                Text("Aktifkan")
+                            }
+                        }
                     }
                 }
             }
@@ -120,7 +180,10 @@ private fun ProductScreenPreview() {
         ProductContent(
             products = dummyProducts,
             onBack = {},
-            onAddProduct = { _, _, _, _ -> }
+            onAddProduct = { _, _, _, _ -> },
+            onUpdateProduct = {},
+            onActivateProduct = {},
+            onDeactivateProduct = {}
         )
     }
 }

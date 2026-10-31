@@ -2,20 +2,23 @@ package com.teds.warungku.pos.presentation.product.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.text.KeyboardOptions
+import com.teds.warungku.pos.domain.model.Product
 
 @Composable
 fun AddProductForm(
+    product: Product? = null,
     onSave: (String, Long, Int, String) -> Unit,
     onCancel: () -> Unit
 ) {
@@ -23,6 +26,13 @@ fun AddProductForm(
     var price by remember { mutableStateOf("") }
     var stock by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf("") }
+
+    LaunchedEffect(product) {
+        name = product?.name ?: ""
+        price = product?.price?.toString() ?: ""
+        stock = product?.stock?.toString() ?: ""
+        unit = product?.unit ?: ""
+    }
 
     val isFormValid =
         name.isNotBlank() &&
@@ -45,9 +55,7 @@ fun AddProductForm(
         OutlinedTextField(
             value = price,
             onValueChange = {
-                if (it.all(Char::isDigit)) {
-                    price = it
-                }
+                if (it.all(Char::isDigit)) price = it
             },
             label = { Text("Harga (Rp)") },
             modifier = Modifier.fillMaxWidth(),
@@ -60,9 +68,7 @@ fun AddProductForm(
         OutlinedTextField(
             value = stock,
             onValueChange = {
-                if (it.all(Char::isDigit)) {
-                    stock = it
-                }
+                if (it.all(Char::isDigit)) stock = it
             },
             label = { Text("Stok") },
             modifier = Modifier.fillMaxWidth(),
