@@ -6,8 +6,10 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.teds.warungku.pos.data.local.dao.ProductDao
+import com.teds.warungku.pos.data.local.dao.StockMovementDao
 import com.teds.warungku.pos.data.local.dao.TransactionDao
 import com.teds.warungku.pos.data.local.entity.ProductEntity
+import com.teds.warungku.pos.data.local.entity.StockMovementEntity
 import com.teds.warungku.pos.data.local.entity.TransactionEntity
 import com.teds.warungku.pos.data.local.entity.TransactionItemEntity
 
@@ -15,9 +17,10 @@ import com.teds.warungku.pos.data.local.entity.TransactionItemEntity
     entities = [
         ProductEntity::class,
         TransactionEntity::class,
-        TransactionItemEntity::class
+        TransactionItemEntity::class,
+        StockMovementEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class ProductDatabase : RoomDatabase() {
@@ -25,6 +28,8 @@ abstract class ProductDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
 
     abstract fun transactionDao(): TransactionDao
+
+    abstract fun stockMovementDao(): StockMovementDao
 
     companion object {
 
@@ -78,5 +83,27 @@ abstract class ProductDatabase : RoomDatabase() {
                 )
             }
         }
+
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS stock_movements (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                productId INTEGER NOT NULL,
+                productName TEXT NOT NULL,
+                type TEXT NOT NULL,
+                quantityChange INTEGER NOT NULL,
+                stockBefore INTEGER NOT NULL,
+                stockAfter INTEGER NOT NULL,
+                note TEXT,
+                createdAt INTEGER NOT NULL
+            )
+            """.trimIndent()
+                )
+            }
+        }
+
     }
 }

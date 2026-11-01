@@ -30,7 +30,14 @@ import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionViewM
 import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionViewModelFactory
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.teds.warungku.pos.data.repository.StockMovementRepositoryImpl
+import com.teds.warungku.pos.domain.usecase.AdjustStockUseCase
+import com.teds.warungku.pos.domain.usecase.GetAllStockMovementsUseCase
+import com.teds.warungku.pos.domain.usecase.GetStockMovementsByProductUseCase
 import com.teds.warungku.pos.domain.usecase.GetTransactionItemsUseCase
+import com.teds.warungku.pos.domain.usecase.StockInUseCase
+import com.teds.warungku.pos.presentation.stock.screen.StockManagementScreen
+import com.teds.warungku.pos.presentation.stock.viewmodel.StockManagementViewModelFactory
 import com.teds.warungku.pos.presentation.transaction.screen.TransactionDetailScreen
 import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionDetailViewModel
 import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionDetailViewModelFactory
@@ -91,6 +98,29 @@ fun AppNavigation() {
         )
     )
 
+    val stockMovementRepository = StockMovementRepositoryImpl(database)
+
+    val getAllStockMovementsUseCase =
+        GetAllStockMovementsUseCase(stockMovementRepository)
+
+    val getStockMovementsByProductUseCase =
+        GetStockMovementsByProductUseCase(stockMovementRepository)
+
+    val stockInUseCase =
+        StockInUseCase(stockMovementRepository)
+
+    val adjustStockUseCase =
+        AdjustStockUseCase(stockMovementRepository)
+
+    val stockManagementViewModelFactory =
+        StockManagementViewModelFactory(
+            getAllProductsUseCase = getAllProductsUseCase,
+            getAllStockMovementsUseCase = getAllStockMovementsUseCase,
+            stockInUseCase = stockInUseCase,
+            adjustStockUseCase = adjustStockUseCase,
+            getStockMovementsByProductUseCase = getStockMovementsByProductUseCase
+        )
+
     NavHost(
         navController = navController,
         startDestination = "dashboard"
@@ -99,6 +129,9 @@ fun AppNavigation() {
             DashboardScreen(
                 onNavigateToProducts = {
                     navController.navigate("products")
+                },
+                onNavigateToStock = {
+                    navController.navigate("stock")
                 },
                 onNavigateToTransactions = {
                     navController.navigate("transactions")
@@ -115,6 +148,15 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 viewModel = productViewModel
+            )
+        }
+
+        composable("stock") {
+            StockManagementScreen(
+                stockManagementViewModelFactory = stockManagementViewModelFactory,
+                onBack = {
+                    navController.popBackStack()
+                }
             )
         }
 

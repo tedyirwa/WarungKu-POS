@@ -44,4 +44,15 @@ interface ProductDao {
         productId: Long,
         quantity: Int
     ): Int
+
+    @Query("""
+    UPDATE products
+    SET stock = stock + :quantityChange
+    WHERE id = :productId
+    AND stock + :quantityChange >= 0
+""")
+    suspend fun adjustStock(
+        productId: Long,
+        quantityChange: Int
+    ): Int
 }

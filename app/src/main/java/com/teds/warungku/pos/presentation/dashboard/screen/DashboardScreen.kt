@@ -1,3 +1,4 @@
+
 package com.teds.warungku.pos.presentation.dashboard.screen
 
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +25,8 @@ import java.util.Locale
 fun DashboardScreen(
     onNavigateToProducts: () -> Unit,
     onNavigateToCashier: () -> Unit,
-    onNavigateToTransactions: () -> Unit
+    onNavigateToTransactions: () -> Unit,
+    onNavigateToStock: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -110,19 +112,25 @@ fun DashboardScreen(
         }
 
         OutlinedButton(
-            onClick = onNavigateToTransactions,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Riwayat Transaksi")
-        }
-
-        OutlinedButton(
             onClick = onNavigateToProducts,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Kelola Produk")
         }
 
+        OutlinedButton(
+            onClick = onNavigateToStock,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Kelola Stok")
+        }
+
+        OutlinedButton(
+            onClick = onNavigateToTransactions,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Riwayat Transaksi")
+        }
     }
 }
 
@@ -132,9 +140,7 @@ fun SummaryCard(
     value: String,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-    ) {
+    Card(modifier = modifier) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -159,7 +165,8 @@ fun DashboardScreenPreview() {
         DashboardScreen(
             onNavigateToProducts = {},
             onNavigateToCashier = {},
-            onNavigateToTransactions = {}
+            onNavigateToTransactions = {},
+            onNavigateToStock = {}
         )
     }
 }

@@ -1,15 +1,17 @@
+
 package com.teds.warungku.pos.data.repository
 
+import androidx.room.withTransaction
 import com.teds.warungku.pos.data.local.database.ProductDatabase
+import com.teds.warungku.pos.data.local.entity.StockMovementEntity
 import com.teds.warungku.pos.data.local.entity.TransactionEntity
 import com.teds.warungku.pos.data.local.entity.TransactionItemEntity
 import com.teds.warungku.pos.domain.model.CartItem
 import com.teds.warungku.pos.domain.model.Transaction
+import com.teds.warungku.pos.domain.model.TransactionItem
 import com.teds.warungku.pos.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import androidx.room.withTransaction
-import com.teds.warungku.pos.domain.model.TransactionItem
 
 class TransactionRepositoryImpl(
     private val database: ProductDatabase
@@ -56,7 +58,9 @@ class TransactionRepositoryImpl(
                 )
             }
 
-        require(checkoutItems.all { it.quantity > 0 && it.price >= 0 }) {
+        require(checkoutItems.all {
+            it.quantity > 0 && it.price >= 0
+        }) {
             "Data produk tidak valid"
         }
 
@@ -76,6 +80,7 @@ class TransactionRepositoryImpl(
 
             val productDao = database.productDao()
             val transactionDao = database.transactionDao()
+            val stockMovementDao = database.stockMovementDao()
 
             // 1. Validasi seluruh produk dan stok
             checkoutItems.forEach { item ->
@@ -118,8 +123,15 @@ class TransactionRepositoryImpl(
 
             transactionDao.insertTransactionItems(transactionItems)
 
-            // 4. Kurangi stok
+            // 4. Kurangi stok dan catat Stock Movement SALE
             checkoutItems.forEach { item ->
+
+                val product = productDao.getProductById(item.productId)
+                    ?: error("Produk ${item.productName} tidak ditemukan")
+
+                val stockBefore = product.stock
+                val stockAfter = stockBefore - item.quantity
+
                 val updatedRows = productDao.decreaseStock(
                     productId = item.productId,
                     quantity = item.quantity
@@ -128,6 +140,19 @@ class TransactionRepositoryImpl(
                 check(updatedRows == 1) {
                     "Gagal memperbarui stok ${item.productName}"
                 }
+
+                stockMovementDao.insert(
+                    StockMovementEntity(
+                        productId = product.id,
+                        productName = product.name,
+                        type = "SALE",
+                        quantityChange = -item.quantity,
+                        stockBefore = stockBefore,
+                        stockAfter = stockAfter,
+                        note = "Transaksi #$transactionId",
+                        createdAt = System.currentTimeMillis()
+                    )
+                )
             }
 
             transactionId
