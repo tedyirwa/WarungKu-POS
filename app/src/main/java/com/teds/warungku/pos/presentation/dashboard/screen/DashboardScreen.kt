@@ -23,7 +23,8 @@ import java.util.Locale
 @Composable
 fun DashboardScreen(
     onNavigateToProducts: () -> Unit,
-    onNavigateToCashier: () -> Unit
+    onNavigateToCashier: () -> Unit,
+    onNavigateToTransactions: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -109,6 +110,13 @@ fun DashboardScreen(
         }
 
         OutlinedButton(
+            onClick = onNavigateToTransactions,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Riwayat Transaksi")
+        }
+
+        OutlinedButton(
             onClick = onNavigateToProducts,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -150,7 +158,8 @@ fun DashboardScreenPreview() {
     WarungKuPOSTheme {
         DashboardScreen(
             onNavigateToProducts = {},
-            onNavigateToCashier = {}
+            onNavigateToCashier = {},
+            onNavigateToTransactions = {}
         )
     }
 }

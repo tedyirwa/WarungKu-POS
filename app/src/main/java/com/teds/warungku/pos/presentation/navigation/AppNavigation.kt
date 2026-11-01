@@ -15,6 +15,7 @@ import com.teds.warungku.pos.domain.usecase.CheckoutUseCase
 import com.teds.warungku.pos.domain.usecase.DeactivateProductUseCase
 import com.teds.warungku.pos.domain.usecase.GetActiveProductsUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllProductsUseCase
+import com.teds.warungku.pos.domain.usecase.GetAllTransactionsUseCase
 import com.teds.warungku.pos.domain.usecase.UpdateProductUseCase
 import com.teds.warungku.pos.presentation.cashier.screen.CashierScreen
 import com.teds.warungku.pos.presentation.cashier.viewmodel.CashierViewModel
@@ -23,6 +24,9 @@ import com.teds.warungku.pos.presentation.dashboard.screen.DashboardScreen
 import com.teds.warungku.pos.presentation.product.screen.ProductScreen
 import com.teds.warungku.pos.presentation.product.viewmodel.ProductViewModel
 import com.teds.warungku.pos.presentation.product.viewmodel.ProductViewModelFactory
+import com.teds.warungku.pos.presentation.transaction.screen.TransactionScreen
+import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionViewModel
+import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionViewModelFactory
 
 @Composable
 fun AppNavigation() {
@@ -52,6 +56,15 @@ fun AppNavigation() {
 
     val transactionRepository = TransactionRepositoryImpl(database)
 
+    val getAllTransactionsUseCase =
+        GetAllTransactionsUseCase(transactionRepository)
+
+    val transactionViewModel: TransactionViewModel = viewModel(
+        factory = TransactionViewModelFactory(
+            getAllTransactionsUseCase
+        )
+    )
+
     val getActiveProductsUseCase =
         GetActiveProductsUseCase(repository)
 
@@ -74,6 +87,9 @@ fun AppNavigation() {
                 onNavigateToProducts = {
                     navController.navigate("products")
                 },
+                onNavigateToTransactions = {
+                    navController.navigate("transactions")
+                },
                 onNavigateToCashier = {
                     navController.navigate("cashier")
                 }
@@ -86,6 +102,15 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 viewModel = productViewModel
+            )
+        }
+
+        composable("transactions") {
+            TransactionScreen(
+                viewModel = transactionViewModel,
+                onBack = {
+                    navController.popBackStack()
+                }
             )
         }
 
