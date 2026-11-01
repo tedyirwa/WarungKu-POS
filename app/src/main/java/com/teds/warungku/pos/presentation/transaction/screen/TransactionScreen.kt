@@ -1,5 +1,6 @@
 package com.teds.warungku.pos.presentation.transaction.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,7 +29,8 @@ import java.util.Locale
 @Composable
 fun TransactionScreen(
     viewModel: TransactionViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onTransactionClick: (Long) -> Unit
 ) {
     val transactions by viewModel.transactions.collectAsState()
 
@@ -73,7 +75,11 @@ fun TransactionScreen(
                     key = { it.id }
                 ) { transaction ->
                     Card(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onTransactionClick(transaction.id)
+                            }
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),

@@ -22,4 +22,20 @@ interface TransactionDao {
 
     @Query("SELECT * FROM transactions ORDER BY date DESC")
     fun getAllTransactions(): Flow<List<TransactionEntity>>
+
+    @Query(
+        """
+    SELECT * FROM transaction_items
+    WHERE transactionId = :transactionId
+    ORDER BY id ASC
+    """
+    )
+    fun getTransactionItems(
+        transactionId: Long
+    ): Flow<List<TransactionItemEntity>>
+
+    @Query("SELECT * FROM transactions WHERE id = :transactionId LIMIT 1")
+    fun getTransactionById(
+        transactionId: Long
+    ): Flow<TransactionEntity?>
 }

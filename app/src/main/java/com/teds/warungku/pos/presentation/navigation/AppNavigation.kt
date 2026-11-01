@@ -16,6 +16,7 @@ import com.teds.warungku.pos.domain.usecase.DeactivateProductUseCase
 import com.teds.warungku.pos.domain.usecase.GetActiveProductsUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllProductsUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllTransactionsUseCase
+import com.teds.warungku.pos.domain.usecase.GetTransactionByIdUseCase
 import com.teds.warungku.pos.domain.usecase.UpdateProductUseCase
 import com.teds.warungku.pos.presentation.cashier.screen.CashierScreen
 import com.teds.warungku.pos.presentation.cashier.viewmodel.CashierViewModel
@@ -27,6 +28,12 @@ import com.teds.warungku.pos.presentation.product.viewmodel.ProductViewModelFact
 import com.teds.warungku.pos.presentation.transaction.screen.TransactionScreen
 import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionViewModel
 import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionViewModelFactory
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.teds.warungku.pos.domain.usecase.GetTransactionItemsUseCase
+import com.teds.warungku.pos.presentation.transaction.screen.TransactionDetailScreen
+import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionDetailViewModel
+import com.teds.warungku.pos.presentation.transaction.viewmodel.TransactionDetailViewModelFactory
 
 @Composable
 fun AppNavigation() {
@@ -64,6 +71,12 @@ fun AppNavigation() {
             getAllTransactionsUseCase
         )
     )
+
+    val getTransactionByIdUseCase =
+        GetTransactionByIdUseCase(transactionRepository)
+
+    val getTransactionItemsUseCase =
+        GetTransactionItemsUseCase(transactionRepository)
 
     val getActiveProductsUseCase =
         GetActiveProductsUseCase(repository)
@@ -107,11 +120,44 @@ fun AppNavigation() {
 
         composable("transactions") {
             TransactionScreen(
+
                 viewModel = transactionViewModel,
+                onBack = {
+                    navController.popBackStack()
+                },
+                onTransactionClick = { transactionId ->
+                    navController.navigate("transaction_detail/$transactionId")
+                }
+            )
+        }
+
+        composable(
+            route = "transaction_detail/{transactionId}",
+            arguments = listOf(
+                navArgument("transactionId") {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+
+            val transactionId =
+                backStackEntry.arguments?.getLong("transactionId") ?: 0L
+
+            val detailViewModel: TransactionDetailViewModel = viewModel(
+                factory = TransactionDetailViewModelFactory(
+                    getTransactionItemsUseCase,
+                    transactionId,
+                    getTransactionByIdUseCase
+                )
+            )
+
+            TransactionDetailScreen(
+                viewModel = detailViewModel,
                 onBack = {
                     navController.popBackStack()
                 }
             )
+
         }
 
         composable("cashier") {

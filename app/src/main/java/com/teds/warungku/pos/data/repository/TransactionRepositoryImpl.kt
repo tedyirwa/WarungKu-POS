@@ -9,6 +9,7 @@ import com.teds.warungku.pos.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import androidx.room.withTransaction
+import com.teds.warungku.pos.domain.model.TransactionItem
 
 class TransactionRepositoryImpl(
     private val database: ProductDatabase
@@ -131,5 +132,43 @@ class TransactionRepositoryImpl(
 
             transactionId
         }
+    }
+
+    override fun getTransactionItems(
+        transactionId: Long
+    ): Flow<List<TransactionItem>> {
+        return database.transactionDao()
+            .getTransactionItems(transactionId)
+            .map { entities ->
+                entities.map { entity ->
+                    TransactionItem(
+                        id = entity.id,
+                        transactionId = entity.transactionId,
+                        productId = entity.productId,
+                        productName = entity.productName,
+                        price = entity.price,
+                        quantity = entity.quantity,
+                        subtotal = entity.subtotal
+                    )
+                }
+            }
+    }
+
+    override fun getTransactionById(
+        transactionId: Long
+    ): Flow<Transaction?> {
+        return database.transactionDao()
+            .getTransactionById(transactionId)
+            .map { entity ->
+                entity?.let {
+                    Transaction(
+                        id = it.id,
+                        date = it.date,
+                        total = it.total,
+                        payment = it.payment,
+                        change = it.change
+                    )
+                }
+            }
     }
 }
