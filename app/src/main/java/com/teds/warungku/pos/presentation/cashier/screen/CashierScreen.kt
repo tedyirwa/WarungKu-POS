@@ -32,6 +32,7 @@ fun CashierScreen(
 ) {
     val products by viewModel.products.collectAsState()
     val cartItems by viewModel.cartItems.collectAsState()
+    val cartError by viewModel.cartError.collectAsState()
     val total by viewModel.total.collectAsState(initial = 0L)
     val payment by viewModel.payment.collectAsState()
     val change by viewModel.change.collectAsState(initial = 0L)
@@ -90,6 +91,14 @@ fun CashierScreen(
                     }
                 }
             }
+        }
+
+        cartError?.let { error ->
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         Text(

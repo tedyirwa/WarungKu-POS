@@ -39,11 +39,24 @@ class CashierViewModel(
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems = _cartItems.asStateFlow()
 
+    private val _cartError = MutableStateFlow<String?>(null)
+    val cartError = _cartError.asStateFlow()
+
     fun addToCart(product: Product) {
         val currentCart = _cartItems.value
+
         val existingItem = currentCart.find {
             it.productId == product.id
         }
+
+        val currentQuantity = existingItem?.quantity ?: 0
+
+        if (currentQuantity >= product.stock) {
+            _cartError.value = "Stok ${product.name} tidak mencukupi"
+            return
+        }
+
+        _cartError.value = null
 
         _cartItems.value = if (existingItem != null) {
             currentCart.map { item ->
@@ -64,6 +77,8 @@ class CashierViewModel(
     }
 
     fun removeFromCart(productId: Long) {
+        _cartError.value = null
+
         val currentCart = _cartItems.value
 
         _cartItems.value = currentCart.mapNotNull { item ->
@@ -81,6 +96,7 @@ class CashierViewModel(
 
     fun clearCart() {
         _cartItems.value = emptyList()
+        _cartError.value = null
     }
 
     val total = cartItems.map { items ->

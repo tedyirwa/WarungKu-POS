@@ -38,11 +38,28 @@ class TransactionRepositoryImpl(
             "Keranjang belanja kosong"
         }
 
-        require(cartItems.all { it.quantity > 0 && it.price >= 0 }) {
+        val checkoutItems = cartItems
+            .groupBy { it.productId }
+            .map { (_, items) ->
+                val firstItem = items.first()
+
+                check(items.all {
+                    it.price == firstItem.price &&
+                            it.productName == firstItem.productName
+                }) {
+                    "Data produk ${firstItem.productName} tidak konsisten"
+                }
+
+                firstItem.copy(
+                    quantity = items.sumOf { it.quantity }
+                )
+            }
+
+        require(checkoutItems.all { it.quantity > 0 && it.price >= 0 }) {
             "Data produk tidak valid"
         }
 
-        val total = cartItems.sumOf { it.subtotal }
+        val total = checkoutItems.sumOf { it.subtotal }
 
         require(total > 0) {
             "Total transaksi harus lebih dari nol"
@@ -60,7 +77,7 @@ class TransactionRepositoryImpl(
             val transactionDao = database.transactionDao()
 
             // 1. Validasi seluruh produk dan stok
-            cartItems.forEach { item ->
+            checkoutItems.forEach { item ->
                 val product = productDao.getProductById(item.productId)
 
                 check(product != null) {
@@ -87,7 +104,7 @@ class TransactionRepositoryImpl(
             )
 
             // 3. Simpan detail transaksi
-            val transactionItems = cartItems.map { item ->
+            val transactionItems = checkoutItems.map { item ->
                 TransactionItemEntity(
                     transactionId = transactionId,
                     productId = item.productId,
@@ -101,7 +118,7 @@ class TransactionRepositoryImpl(
             transactionDao.insertTransactionItems(transactionItems)
 
             // 4. Kurangi stok
-            cartItems.forEach { item ->
+            checkoutItems.forEach { item ->
                 val updatedRows = productDao.decreaseStock(
                     productId = item.productId,
                     quantity = item.quantity
