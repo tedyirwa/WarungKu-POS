@@ -23,6 +23,7 @@ import com.teds.warungku.pos.domain.usecase.GetAllStockMovementsUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllTransactionsUseCase
 import com.teds.warungku.pos.domain.usecase.GetLowStockProductCountUseCase
 import com.teds.warungku.pos.domain.usecase.GetOutOfStockProductCountUseCase
+import com.teds.warungku.pos.domain.usecase.GetRevenueLast7DaysUseCase
 import com.teds.warungku.pos.domain.usecase.GetStockMovementsByProductUseCase
 import com.teds.warungku.pos.domain.usecase.GetTodayRevenueUseCase
 import com.teds.warungku.pos.domain.usecase.GetTodayTransactionCountUseCase
@@ -106,13 +107,17 @@ fun AppNavigation() {
     val getOutOfStockProductCountUseCase =
         GetOutOfStockProductCountUseCase(repository)
 
+    val getRevenueLast7DaysUseCase =
+        GetRevenueLast7DaysUseCase(transactionRepository)
+
     val dashboardViewModel: DashboardViewModel = viewModel(
         factory = DashboardViewModelFactory(
             getTodayRevenueUseCase = getTodayRevenueUseCase,
             getTodayTransactionCountUseCase = getTodayTransactionCountUseCase,
             getActiveProductsUseCase = getActiveProductsUseCase,
             getLowStockProductCountUseCase = getLowStockProductCountUseCase,
-            getOutOfStockProductCountUseCase = getOutOfStockProductCountUseCase
+            getOutOfStockProductCountUseCase = getOutOfStockProductCountUseCase,
+            getRevenueLast7DaysUseCase = getRevenueLast7DaysUseCase
         )
     )
 

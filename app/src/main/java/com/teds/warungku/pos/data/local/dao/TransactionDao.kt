@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.teds.warungku.pos.data.local.entity.DailyRevenueResult
 import com.teds.warungku.pos.data.local.entity.TransactionEntity
 import com.teds.warungku.pos.data.local.entity.TransactionItemEntity
 import kotlinx.coroutines.flow.Flow
@@ -62,4 +63,19 @@ interface TransactionDao {
         startOfDay: Long,
         startOfNextDay: Long
     ): Flow<Int>
+
+    @Query(
+        """
+    SELECT
+        date AS transactionDate,
+        total AS revenue
+    FROM transactions
+    WHERE date >= :startDate AND date < :endDate
+    ORDER BY date ASC
+"""
+    )
+    fun getRevenueLast7Days(
+        startDate: Long,
+        endDate: Long
+    ): Flow<List<DailyRevenueResult>>
 }

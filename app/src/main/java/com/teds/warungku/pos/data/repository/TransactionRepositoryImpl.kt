@@ -2,17 +2,22 @@
 package com.teds.warungku.pos.data.repository
 
 import androidx.room.withTransaction
+import com.teds.warungku.pos.core.common.getLast7DaysRange
 import com.teds.warungku.pos.core.common.getTodayRange
 import com.teds.warungku.pos.data.local.database.ProductDatabase
 import com.teds.warungku.pos.data.local.entity.StockMovementEntity
 import com.teds.warungku.pos.data.local.entity.TransactionEntity
 import com.teds.warungku.pos.data.local.entity.TransactionItemEntity
 import com.teds.warungku.pos.domain.model.CartItem
+import com.teds.warungku.pos.domain.model.DailyRevenue
 import com.teds.warungku.pos.domain.model.Transaction
 import com.teds.warungku.pos.domain.model.TransactionItem
 import com.teds.warungku.pos.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 
 class TransactionRepositoryImpl(
     private val database: ProductDatabase
@@ -193,6 +198,44 @@ class TransactionRepositoryImpl(
                         total = it.total,
                         payment = it.payment,
                         change = it.change
+                    )
+                }
+            }
+    }
+
+    override fun getRevenueLast7Days(): Flow<List<DailyRevenue>> {
+        val range = getLast7DaysRange()
+
+        return database.transactionDao()
+            .getRevenueLast7Days(
+                startDate = range.startOfDay,
+                endDate = range.startOfNextDay
+            )
+            .map { results ->
+
+                val zoneId = ZoneId.systemDefault()
+                val today = LocalDate.now(zoneId)
+
+                // Kelompokkan omzet berdasarkan tanggal lokal
+                val revenueByDate = results
+                    .groupBy { result ->
+                        Instant.ofEpochMilli(result.transactionDate)
+                            .atZone(zoneId)
+                            .toLocalDate()
+                    }
+                    .mapValues { (_, transactions) ->
+                        transactions.sumOf { it.revenue }
+                    }
+
+                // Selalu hasilkan 7 hari, termasuk omzet nol
+                (0..6).map { offset ->
+                    val date = today.minusDays(6L - offset)
+
+                    DailyRevenue(
+                        date = date.atStartOfDay(zoneId)
+                            .toInstant()
+                            .toEpochMilli(),
+                        revenue = revenueByDate[date] ?: 0L
                     )
                 }
             }

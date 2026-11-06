@@ -28,3 +28,18 @@ fun getTodayRange(): DayRange {
         startOfNextDay = startOfNextDay
     )
 }
+
+fun getLast7DaysRange(): DayRange {
+    val zoneId = ZoneId.systemDefault()
+    val today = LocalDate.now(zoneId)
+
+    val startDate = today.minusDays(6)
+    val endDate = today.plusDays(1)
+
+    return DayRange(
+        startOfDay = startDate.atStartOfDay(zoneId)
+            .toInstant().toEpochMilli(),
+        startOfNextDay = endDate.atStartOfDay(zoneId)
+            .toInstant().toEpochMilli()
+    )
+}

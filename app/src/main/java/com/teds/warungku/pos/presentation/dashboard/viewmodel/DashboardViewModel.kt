@@ -7,6 +7,7 @@ import com.teds.warungku.pos.domain.usecase.GetTodayTransactionCountUseCase
 import com.teds.warungku.pos.domain.usecase.GetActiveProductsUseCase
 import com.teds.warungku.pos.domain.usecase.GetLowStockProductCountUseCase
 import com.teds.warungku.pos.domain.usecase.GetOutOfStockProductCountUseCase
+import com.teds.warungku.pos.domain.usecase.GetRevenueLast7DaysUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -17,22 +18,33 @@ class DashboardViewModel(
     private val getActiveProductsUseCase: GetActiveProductsUseCase,
     private val getLowStockProductCountUseCase: GetLowStockProductCountUseCase,
     private val getOutOfStockProductCountUseCase: GetOutOfStockProductCountUseCase,
-
+    private val getRevenueLast7DaysUseCase: GetRevenueLast7DaysUseCase
 ) : ViewModel() {
 
-    val uiState = combine(
+    private val summaryFlow = combine(
         getTodayRevenueUseCase(),
         getTodayTransactionCountUseCase(),
-        getActiveProductsUseCase(),
-        getLowStockProductCountUseCase(),
-        getOutOfStockProductCountUseCase()
-    ) { revenue, transactionCount, products, lowStockCount, outOfStockCount->
+        getActiveProductsUseCase()
+    ) { revenue, transactionCount, products ->
+        Triple(revenue, transactionCount, products)
+    }
 
+    private val stockFlow = combine(
+        getLowStockProductCountUseCase(),
+        getOutOfStockProductCountUseCase(),
+        getRevenueLast7DaysUseCase()
+    ) { lowStockCount, outOfStockCount, last7DaysRevenue ->
+        Triple(lowStockCount, outOfStockCount, last7DaysRevenue)
+    }
+
+    val uiState = combine(summaryFlow, stockFlow) { summary, stock ->
         DashboardUiState(
-            todayRevenue = revenue,
-            todayTransactionCount = transactionCount,
-            activeProductCount = products.size,
-            lowStockProductCount = lowStockCount,
+            todayRevenue = summary.first,
+            todayTransactionCount = summary.second,
+            activeProductCount = summary.third.size,
+            lowStockProductCount = stock.first,
+            outOfStockProductCount = stock.second,
+            last7DaysRevenue = stock.third,
             isLoading = false
         )
     }.stateIn(
