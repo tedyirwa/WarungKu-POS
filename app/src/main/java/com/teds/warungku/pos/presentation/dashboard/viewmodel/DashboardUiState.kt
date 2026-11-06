@@ -5,5 +5,6 @@ data class DashboardUiState(
     val todayTransactionCount: Int = 0,
     val activeProductCount: Int = 0,
     val lowStockProductCount: Int = 0,
+    val outOfStockProductCount: Int = 0,
     val isLoading: Boolean = true
 )

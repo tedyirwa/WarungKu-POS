@@ -100,6 +100,11 @@ private fun DashboardContent(
                 title = "Stok Menipis",
                 value = "${uiState.lowStockProductCount} produk"
             )
+
+            DashboardSummaryCard(
+                title = "Stok Habis",
+                value = "${uiState.outOfStockProductCount} produk"
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))

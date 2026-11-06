@@ -19,4 +19,6 @@ interface ProductRepository {
 
     fun getLowStockProductCount(): Flow<Int>
 
+    fun getOutOfStockProductCount(): Flow<Int>
+
 }

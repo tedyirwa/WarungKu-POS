@@ -65,4 +65,12 @@ interface ProductDao {
     """
     )
     fun getLowStockProductCount(): Flow<Int>
+
+    @Query("""
+    SELECT COUNT(*)
+    FROM products
+    WHERE isActive = 1
+    AND stock = 0
+""")
+    fun getOutOfStockProductCount(): Flow<Int>
 }
