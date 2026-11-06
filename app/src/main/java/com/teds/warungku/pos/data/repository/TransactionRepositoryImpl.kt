@@ -2,6 +2,7 @@
 package com.teds.warungku.pos.data.repository
 
 import androidx.room.withTransaction
+import com.teds.warungku.pos.core.common.getTodayRange
 import com.teds.warungku.pos.data.local.database.ProductDatabase
 import com.teds.warungku.pos.data.local.entity.StockMovementEntity
 import com.teds.warungku.pos.data.local.entity.TransactionEntity
@@ -195,5 +196,23 @@ class TransactionRepositoryImpl(
                     )
                 }
             }
+    }
+
+    override fun getTodayRevenue(): Flow<Long> {
+        val range = getTodayRange()
+
+        return database.transactionDao().getTodayRevenue(
+            startOfDay = range.startOfDay,
+            startOfNextDay = range.startOfNextDay
+        )
+    }
+
+    override fun getTodayTransactionCount(): Flow<Int> {
+        val range = getTodayRange()
+
+        return database.transactionDao().getTodayTransactionCount(
+            startOfDay = range.startOfDay,
+            startOfNextDay = range.startOfNextDay
+        )
     }
 }

@@ -55,4 +55,14 @@ interface ProductDao {
         productId: Long,
         quantityChange: Int
     ): Int
+
+    @Query(
+        """
+    SELECT COUNT(*)
+    FROM products
+    WHERE isActive = 1
+    AND stock BETWEEN 1 AND 5
+    """
+    )
+    fun getLowStockProductCount(): Flow<Int>
 }

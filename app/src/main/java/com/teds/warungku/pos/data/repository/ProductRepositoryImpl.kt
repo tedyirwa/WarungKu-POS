@@ -41,6 +41,10 @@ class ProductRepositoryImpl(
         }
     }
 
+    override fun getLowStockProductCount(): Flow<Int> {
+        return productDao.getLowStockProductCount()
+    }
+
     override suspend fun addProduct(product: Product) {
         val entity = ProductEntity(
             id = product.id,

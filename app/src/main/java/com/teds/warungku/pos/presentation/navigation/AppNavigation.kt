@@ -21,7 +21,10 @@ import com.teds.warungku.pos.domain.usecase.GetActiveProductsUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllProductsUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllStockMovementsUseCase
 import com.teds.warungku.pos.domain.usecase.GetAllTransactionsUseCase
+import com.teds.warungku.pos.domain.usecase.GetLowStockProductCountUseCase
 import com.teds.warungku.pos.domain.usecase.GetStockMovementsByProductUseCase
+import com.teds.warungku.pos.domain.usecase.GetTodayRevenueUseCase
+import com.teds.warungku.pos.domain.usecase.GetTodayTransactionCountUseCase
 import com.teds.warungku.pos.domain.usecase.GetTransactionByIdUseCase
 import com.teds.warungku.pos.domain.usecase.GetTransactionItemsUseCase
 import com.teds.warungku.pos.domain.usecase.StockInUseCase
@@ -30,6 +33,8 @@ import com.teds.warungku.pos.presentation.cashier.screen.CashierScreen
 import com.teds.warungku.pos.presentation.cashier.viewmodel.CashierViewModel
 import com.teds.warungku.pos.presentation.cashier.viewmodel.CashierViewModelFactory
 import com.teds.warungku.pos.presentation.dashboard.screen.DashboardScreen
+import com.teds.warungku.pos.presentation.dashboard.viewmodel.DashboardViewModel
+import com.teds.warungku.pos.presentation.dashboard.viewmodel.DashboardViewModelFactory
 import com.teds.warungku.pos.presentation.product.screen.ProductScreen
 import com.teds.warungku.pos.presentation.product.viewmodel.ProductViewModel
 import com.teds.warungku.pos.presentation.product.viewmodel.ProductViewModelFactory
@@ -88,6 +93,24 @@ fun AppNavigation() {
     val getActiveProductsUseCase =
         GetActiveProductsUseCase(repository)
 
+    val getTodayRevenueUseCase =
+        GetTodayRevenueUseCase(transactionRepository)
+
+    val getTodayTransactionCountUseCase =
+        GetTodayTransactionCountUseCase(transactionRepository)
+
+    val getLowStockProductCountUseCase =
+        GetLowStockProductCountUseCase(repository)
+
+    val dashboardViewModel: DashboardViewModel = viewModel(
+        factory = DashboardViewModelFactory(
+            getTodayRevenueUseCase = getTodayRevenueUseCase,
+            getTodayTransactionCountUseCase = getTodayTransactionCountUseCase,
+            getActiveProductsUseCase = getActiveProductsUseCase,
+            getLowStockProductCountUseCase = getLowStockProductCountUseCase
+        )
+    )
+
     val checkoutUseCase =
         CheckoutUseCase(transactionRepository)
 
@@ -127,6 +150,7 @@ fun AppNavigation() {
     ) {
         composable("dashboard") {
             DashboardScreen(
+                viewModel = dashboardViewModel,
                 onNavigateToProducts = {
                     navController.navigate("products")
                 },

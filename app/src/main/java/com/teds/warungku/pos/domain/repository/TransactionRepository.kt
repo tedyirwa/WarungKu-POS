@@ -9,6 +9,10 @@ interface TransactionRepository {
 
     fun getAllTransactions(): Flow<List<Transaction>>
 
+    fun getTodayRevenue(): Flow<Long>
+
+    fun getTodayTransactionCount(): Flow<Int>
+
     suspend fun checkout(cartItems: List<CartItem>, payment: Long) : Long
 
     fun getTransactionItems(

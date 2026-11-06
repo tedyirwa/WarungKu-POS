@@ -17,4 +17,6 @@ interface ProductRepository {
 
     suspend fun activateProduct(productId: Long)
 
+    fun getLowStockProductCount(): Flow<Int>
+
 }

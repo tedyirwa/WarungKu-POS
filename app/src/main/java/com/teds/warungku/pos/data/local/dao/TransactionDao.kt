@@ -38,4 +38,28 @@ interface TransactionDao {
     fun getTransactionById(
         transactionId: Long
     ): Flow<TransactionEntity?>
+
+    @Query(
+        """
+    SELECT COALESCE(SUM(total), 0)
+    FROM transactions
+    WHERE date >= :startOfDay AND date < :startOfNextDay
+    """
+    )
+    fun getTodayRevenue(
+        startOfDay: Long,
+        startOfNextDay: Long
+    ): Flow<Long>
+
+    @Query(
+        """
+    SELECT COUNT(*)
+    FROM transactions
+    WHERE date >= :startOfDay AND date < :startOfNextDay
+    """
+    )
+    fun getTodayTransactionCount(
+        startOfDay: Long,
+        startOfNextDay: Long
+    ): Flow<Int>
 }
